@@ -1,18 +1,55 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, PanResponder, Alert } from 'react-native';
+import { useRef } from 'react';
 import { Card, Icon } from 'react-native-elements';
 import { baseUrl } from '../../shared/baseUrl';
 import * as Animatable from 'react-native-animatable'
 
 const RenderCampsite = (props) => {
     const { campsite } = props
+    const view = useRef()
+    const isLeftSwipe = ({dx}) => dx < -200;
+    const panResponder = PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onPanResponderGrant: () => {
+            view.current
+            .rubberBand(1000)
+            .then((endState) => console.log(endState.finished ? "finished": 'canceled'))
+        },
+        onPanResponderEnd: (e, gestureState) => {
+            console.log('the gesture object', gestureState);
+            if (isLeftSwipe(gestureState)) {
+                Alert.alert(
+                    'Add Favorite',
+                    'Are you sure you wish to add' + campsite.name + 'to favorites?',
+                    [
+                        {
+                            text: 'Cancel',
+                            style: 'cancel',
+                            onPress: () => console.log('cancel pressed')
+                        },
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                props.isFavorite? console.log('Already set as favorite'):
+                                props.markFavorite()
+                            }
+                        }
+                    ],
+                    {cancelable: false}
+                )
+            }
+        }
+    })
     if (campsite) {
         return (
             <Animatable.View
                 animation='fadeInDownBig'
                 duration={2000}
-                delay={1000}
+                delay={1000}                
+                {...panResponder.panHandlers}
+                ref={view}
             >
-                <Card containerStyle={styles.cardContainer}>
+                <Card containerStyle={styles.cardContainer} >
                     <Card.Image source={{ uri: baseUrl + campsite.image }}>
                         <View style={{ justifyContent: 'center', flex: 1 }}>
                             <Text
