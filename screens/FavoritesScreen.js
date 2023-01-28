@@ -11,8 +11,7 @@ const FavoritesScreen = ({navigation}) => {
 const {campsitesArray, errMess, isLoading} = useSelector((state) => state.campsites)
 const favorites = useSelector(state => state.favorites)
 const dispatch = useDispatch();
-const renderFavoriteItem = ({item:campsite}) => {
-   
+const renderFavoriteItem = ({item:campsite}) => {   
      return (
         <SwipeRow rightOpenValue={-100}>
             <View style={styles.deleteView}>
