@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Text, View, ScrollView, StyleSheet, Switch, Button, Alert} from 'react-native';
+import { Text, View, ScrollView, StyleSheet, Switch, Button, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import * as Animatable from 'react-native-animatable'
+import * as Animatable from 'react-native-animatable';
+import * as Notifications from 'expo-notifications';
 
 const ReservationScreen = () => {
 
@@ -29,19 +30,22 @@ Hike-In? ${hikeIn}
 
 Date: ${date.toLocaleDateString('en-US')}`
             ,
-                    [
-                        {
-                            text: 'Cancel',
-                            onPress: () => resetForm(),
-                            style: 'cancel'
-                        },
-                        {
-                            text: 'OK',
-                            onPress: () => resetForm()
-                        }
-                    ],
-                    {cancelable: false}
-                    )
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => resetForm(),
+                    style: 'cancel'
+                },
+                {
+                    text: 'OK',
+                    onPress: () =>{
+                        presentLocalNotification(date.toLocaleDateString('en-US'))
+                        resetForm()
+                    } 
+                }
+            ],
+            { cancelable: false }
+        )
     }
     const resetForm = () => {
         setCampers(1);
@@ -49,10 +53,35 @@ Date: ${date.toLocaleDateString('en-US')}`
         setDate(new Date());
         setShowCalendar(false);
     }
+    const presentLocalNotification = async (reservationDate) => {
+        const sendNotification = () => {
+            Notifications.setNotificationHandler({
+                handleNotification: async () => ({
+                    shouldShowAlert: true,
+                    shouldPlaySound: true,
+                    shouldSetBadge: true
+                })
+            })
+            Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'Your Campsite Reservation Search',
+                    body: `Search for ${reservationDate} requested`
+                },
+                trigger: null
+            })
+        }
+        let permissions = await Notifications.getPermissionsAsync();
+        if(!permissions.granted) {
+            permissions = await Notifications.requestPermissionsAsync()
+        }
+        if(permissions.granted) {
+            sendNotification();
+        }
+    }
 
     return (
         <ScrollView>
-            <Animatable.View  animation='zoomIn' duration={2000} delay={1000}>
+            <Animatable.View animation='zoomIn' duration={2000} delay={1000}>
                 <View style={styles.formRow}>
                     <Text style={styles.formLabel}>Number of Campers:</Text>
                     <Picker
@@ -105,8 +134,8 @@ Date: ${date.toLocaleDateString('en-US')}`
                 </View>
             </Animatable.View>
 
-            
-           
+
+
         </ScrollView>
 
     )
