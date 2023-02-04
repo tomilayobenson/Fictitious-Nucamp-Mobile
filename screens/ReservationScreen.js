@@ -38,10 +38,10 @@ Date: ${date.toLocaleDateString('en-US')}`
                 },
                 {
                     text: 'OK',
-                    onPress: () =>{
+                    onPress: () => {
                         presentLocalNotification(date.toLocaleDateString('en-US'))
                         resetForm()
-                    } 
+                    }
                 }
             ],
             { cancelable: false }
@@ -71,10 +71,10 @@ Date: ${date.toLocaleDateString('en-US')}`
             })
         }
         let permissions = await Notifications.getPermissionsAsync();
-        if(!permissions.granted) {
+        if (!permissions.granted) {
             permissions = await Notifications.requestPermissionsAsync()
         }
-        if(permissions.granted) {
+        if (permissions.granted) {
             sendNotification();
         }
     }
